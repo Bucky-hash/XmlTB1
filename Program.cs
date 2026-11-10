@@ -120,5 +120,95 @@ class Program
         Console.WriteLine($"So phong ban: {soPhong}");
         Console.WriteLine($"So nhan vien: {soNv}");
     }
-  
+  private static void HandleXPath(XmlDocument doc, string xpathExpr)
+    {
+        if (string.IsNullOrEmpty(xpathExpr))
+        {
+            Console.WriteLine("Bieu thuc XPath khong hop le");
+            return;
+        }
+        XPathNavigator nav = doc.CreateNavigator();
+        try
+        {
+            object result = nav.Evaluate(xpathExpr);
+            if (result is XPathNodeIterator iterator)
+            {
+                bool hasResult = false;
+                while (iterator.MoveNext())
+                {
+                    if (iterator.Current != null)
+                    {
+                        hasResult = true;
+                        Console.WriteLine($"{iterator.Current.Name}: {iterator.Current.Value}");
+                    }
+                }
+                if (!hasResult)
+                {
+                    Console.WriteLine("Khong co ket qua");
+                }
+            }
+            else if (result is double d)
+            {
+                Console.WriteLine(d.ToString(CultureInfo.InvariantCulture));
+            }
+            else if (result is bool b)
+            {
+                Console.WriteLine(b ? "true" : "false");
+            }
+            else if (result is string s)
+            {
+                Console.WriteLine(s);
+            }
+            else
+            {
+                Console.WriteLine(result?.ToString() ?? "Khong co ket qua");
+            }
+        }
+        catch (XPathException)
+        {
+            Console.WriteLine("Bieu thuc XPath khong hop le");
+        }
+        private static void HandleThuong(XmlDocument doc)
+    {
+        XmlNodeList? nhanViens = doc.SelectNodes("//nhanvien");
+        if (nhanViens == null || nhanViens.Count == 0)
+        {
+            Console.WriteLine("Khong co nhan vien duoc thuong");
+            return;
+        }
+        long tongThuong = 0;
+        int countThuong = 0;
+        List<string> results = new List<string>();
+        int currentYear = 2026;
+        foreach (XmlNode nv in nhanViens)
+        {
+            string ma = nv.Attributes?["ma"]?.Value ?? "";
+            string hoten = nv["hoten"]?.InnerText ?? "";
+            string namVaoLamStr = nv.Attributes?["namvaolam"]?.Value ?? "2026";
+            string luongStr = nv["luong"]?.InnerText ?? "0";
+            if (int.TryParse(namVaoLamStr, out int namVaoLam) && long.TryParse(luongStr, out long luong))
+            {
+                int thamNien = currentYear - namVaoLam;
+                if (thamNien >= 3)
+                {
+                    long thuong = (long)Math.Floor(luong * 1.5);
+                    tongThuong += thuong;
+                    countThuong++;
+                    results.Add($"{ma} - {hoten}: {thuong}");
+                }
+            }
+        }
+        if (countThuong == 0)
+        {
+            Console.WriteLine("Khong co nhan vien duoc thuong");
+            return;
+        }
+        foreach (var line in results)
+        {
+            Console.WriteLine(line);
+        }
+        Console.WriteLine($"Tong thuong: {tongThuong}");
+    }
+}
+   
 
