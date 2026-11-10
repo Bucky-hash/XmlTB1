@@ -168,5 +168,47 @@ class Program
         {
             Console.WriteLine("Bieu thuc XPath khong hop le");
         }
+        private static void HandleThuong(XmlDocument doc)
+    {
+        XmlNodeList? nhanViens = doc.SelectNodes("//nhanvien");
+        if (nhanViens == null || nhanViens.Count == 0)
+        {
+            Console.WriteLine("Khong co nhan vien duoc thuong");
+            return;
+        }
+        long tongThuong = 0;
+        int countThuong = 0;
+        List<string> results = new List<string>();
+        int currentYear = 2026;
+        foreach (XmlNode nv in nhanViens)
+        {
+            string ma = nv.Attributes?["ma"]?.Value ?? "";
+            string hoten = nv["hoten"]?.InnerText ?? "";
+            string namVaoLamStr = nv.Attributes?["namvaolam"]?.Value ?? "2026";
+            string luongStr = nv["luong"]?.InnerText ?? "0";
+            if (int.TryParse(namVaoLamStr, out int namVaoLam) && long.TryParse(luongStr, out long luong))
+            {
+                int thamNien = currentYear - namVaoLam;
+                if (thamNien >= 3)
+                {
+                    long thuong = (long)Math.Floor(luong * 1.5);
+                    tongThuong += thuong;
+                    countThuong++;
+                    results.Add($"{ma} - {hoten}: {thuong}");
+                }
+            }
+        }
+        if (countThuong == 0)
+        {
+            Console.WriteLine("Khong co nhan vien duoc thuong");
+            return;
+        }
+        foreach (var line in results)
+        {
+            Console.WriteLine(line);
+        }
+        Console.WriteLine($"Tong thuong: {tongThuong}");
+    }
+}
    
 
