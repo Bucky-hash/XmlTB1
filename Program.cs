@@ -120,5 +120,53 @@ class Program
         Console.WriteLine($"So phong ban: {soPhong}");
         Console.WriteLine($"So nhan vien: {soNv}");
     }
-  
+  private static void HandleXPath(XmlDocument doc, string xpathExpr)
+    {
+        if (string.IsNullOrEmpty(xpathExpr))
+        {
+            Console.WriteLine("Bieu thuc XPath khong hop le");
+            return;
+        }
+        XPathNavigator nav = doc.CreateNavigator();
+        try
+        {
+            object result = nav.Evaluate(xpathExpr);
+            if (result is XPathNodeIterator iterator)
+            {
+                bool hasResult = false;
+                while (iterator.MoveNext())
+                {
+                    if (iterator.Current != null)
+                    {
+                        hasResult = true;
+                        Console.WriteLine($"{iterator.Current.Name}: {iterator.Current.Value}");
+                    }
+                }
+                if (!hasResult)
+                {
+                    Console.WriteLine("Khong co ket qua");
+                }
+            }
+            else if (result is double d)
+            {
+                Console.WriteLine(d.ToString(CultureInfo.InvariantCulture));
+            }
+            else if (result is bool b)
+            {
+                Console.WriteLine(b ? "true" : "false");
+            }
+            else if (result is string s)
+            {
+                Console.WriteLine(s);
+            }
+            else
+            {
+                Console.WriteLine(result?.ToString() ?? "Khong co ket qua");
+            }
+        }
+        catch (XPathException)
+        {
+            Console.WriteLine("Bieu thuc XPath khong hop le");
+        }
+   
 
