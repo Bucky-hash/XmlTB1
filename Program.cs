@@ -84,4 +84,41 @@ class Program
             Console.WriteLine($"{ma} - {hoten} - {luong}");
         }
     }
-    
+    private static void HandlePhong(XmlDocument doc, string maPhong)
+    {
+        if (string.IsNullOrEmpty(maPhong))
+        {
+            Console.WriteLine("Lenh khong hop le");
+            return;
+        }
+        XmlNode? phongNode = doc.SelectSingleNode($"//phongban[@ma='{maPhong}']");
+        if (phongNode == null)
+        {
+            Console.WriteLine($"Khong co phong {maPhong}");
+            return;
+        }
+        XmlNodeList? nhanViens = phongNode.SelectNodes("nhanvien");
+        if (nhanViens == null || nhanViens.Count == 0)
+        {
+            Console.WriteLine($"Phong {maPhong} chua co nhan vien");
+            return;
+        }
+        foreach (XmlNode nv in nhanViens)
+        {
+            string ma = nv.Attributes?["ma"]?.Value ?? "";
+            string hoten = nv["hoten"]?.InnerText ?? "";
+            Console.WriteLine($"{ma} - {hoten}");
+        }
+        private static void HandleDem(XmlDocument doc)
+    {
+        XPathNavigator nav = doc.CreateNavigator();
+        object? resPhong = nav.Evaluate("count(//phongban)");
+        object? resNv = nav.Evaluate("count(//nhanvien)");
+
+        int soPhong = resPhong != null ? Convert.ToInt32(resPhong, CultureInfo.InvariantCulture) : 0;
+        int soNv = resNv != null ? Convert.ToInt32(resNv, CultureInfo.InvariantCulture) : 0;
+        Console.WriteLine($"So phong ban: {soPhong}");
+        Console.WriteLine($"So nhan vien: {soNv}");
+    }
+  
+
